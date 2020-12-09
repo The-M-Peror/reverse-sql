@@ -53,7 +53,8 @@ export abstract class QueryMethodWriter {
 
             const methodParameter: ParameterDefinition = {
                 name: '', // filled below
-                typeName: objectTypeName
+                typeName: objectTypeName,
+                origIndex: p.index
             };
             methodParameter.isOutput = p.direction === SqlParameterDirection.Output || p.direction === SqlParameterDirection.InputOutput;
             // We don't know if the SP parameter (or the related column, at this moment) is nullable, so allow every input parameter to be null
@@ -71,7 +72,7 @@ export abstract class QueryMethodWriter {
         });
 
         // Make output parameters show up as last
-        method.parameters = methodParameters.sort((a, b) => { return (a.isOutput === b.isOutput) ? 0 : a.isOutput ? 1 : -1; });
+        method.parameters = methodParameters.sort((a, b) => { return (a.isOutput === b.isOutput) ? (a.origIndex - b.origIndex) : a.isOutput ? 1 : -1; });
 
         // Write
         this.csharp.writeMethodBlock(method, () => {
